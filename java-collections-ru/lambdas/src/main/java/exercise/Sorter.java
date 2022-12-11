@@ -10,10 +10,13 @@ import java.util.stream.Collectors;
 // BEGIN
 public class Sorter {
     public static List<String> takeOldestMans(List<Map<String, String>> users) {
-        return users.stream()
-                .filter(user -> user.get("gender") == "male")
+
+        List<String> result = users.stream()
+                .filter(x -> x.get("gender").equals("male"))
                 .sorted((u1, u2) -> u1.get("birthday").compareTo(u2.get("birthday")))
-                .map(user -> user.get("name"))
+                .map(x -> x.get("name"))
                 .collect(Collectors.toList());
+        return result;
     }
 }
+// END
