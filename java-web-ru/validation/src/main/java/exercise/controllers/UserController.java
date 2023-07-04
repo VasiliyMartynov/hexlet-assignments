@@ -51,44 +51,44 @@ public final class UserController {
 
     public static Handler createUser = ctx -> {
         // BEGIN
-        String newUserFirstName = ctx.formParam("firstName");
-        String newUserLastName = ctx.formParam("lastName");
-        String newUserEmail = ctx.formParam("email");
-        String newUserPassword = ctx.formParam("password");
+        String firstName = ctx.formParam("firstName");
+        String lastName = ctx.formParam("lastName");
+        String email = ctx.formParam("email");
+        String password = ctx.formParam("password");
 
-        Validator<String> firstNameValidator = ctx.formParamAsClass(newUserFirstName, String.class)
-                .check(x -> !x.isEmpty(), "Name shouldn't be empty");
+        Validator<String> firstNameValidator = ctx.formParamAsClass("firstName", String.class)
+                .check(it -> !it.isEmpty(), "Имя не должно быть пустым");
 
-        Validator<String> lastNameValidator = ctx.formParamAsClass(newUserLastName, String.class)
-                .check(x -> !x.isEmpty(), "Last name shouldn't be empty");
+        Validator<String> lastNameValidator = ctx.formParamAsClass("lastName", String.class)
+                .check(it -> !it.isEmpty(), "Фамилия не должна быть пустой");
 
-        Validator<String> emailValidator = ctx.formParamAsClass(newUserEmail, String.class)
-                .check(x-> EmailValidator.getInstance().isValid(x),"Email shouldn't be empty");
+        Validator<String> emailValidator = ctx.formParamAsClass("email", String.class)
+                .check(it -> EmailValidator.getInstance().isValid(it), "Должно быть валидным email");
 
-        Validator<String> passvordValidator = ctx.formParamAsClass(newUserPassword, String.class)
-                .check(x -> x.length() > 4, "Password length should be more than 4 symbols")
-                .check(x -> StringUtils.isNumeric(x), "Password should consist with only digits");
+        Validator<String> passwordValidator = ctx.formParamAsClass("password", String.class)
+                .check(it -> it.length() >= 4, "Пароль должен содержать не менее 4 символов")
+                .check(it -> StringUtils.isNumeric(it), "Пароль должен содержать только цифры");
 
         Map<String, List<ValidationError<? extends Object>>> errors = JavalinValidation.collectErrors(
                 firstNameValidator,
                 lastNameValidator,
                 emailValidator,
-                passvordValidator
-                );
+                passwordValidator
+        );
 
         if (!errors.isEmpty()) {
-            // Устанавливаем код ответа
             ctx.status(422);
-            // Передаем ошибки и данные компании
             ctx.attribute("errors", errors);
-            User notCorrectUser = new User(newUserFirstName, newUserLastName, newUserEmail, newUserPassword);
-            ctx.attribute("user", notCorrectUser);
+            User invalidUser = new User(firstName, lastName, email, password);
+            ctx.attribute("user", invalidUser);
             ctx.render("users/new.html");
             return;
         }
-        User newUser = new User(newUserFirstName, newUserLastName, newUserEmail, newUserPassword);
-        newUser.save();
-        ctx.sessionAttribute("flash", "User successfully created");
+
+        User user = new User(firstName, lastName, email, password);
+        user.save();
+
+        ctx.sessionAttribute("flash", "Пользователь успешно создан");
         ctx.redirect("/users");
         // END
     };
