@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class WelcomeController {
 
     @GetMapping("/")
-    public String index(){
+    public String index() {
         return "Welcome to Spring";
     }
 
     @GetMapping("/hello")
-    public String hello(@RequestParam(defaultValue = "World") String name){
+    public String hello(@RequestParam(defaultValue = "World") String name) {
         String result = "Hello, " + name;
         return result;
     }
